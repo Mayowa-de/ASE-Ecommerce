@@ -1,0 +1,17 @@
+{
+  "id": "/",
+  "name": "Adeola Spiritual Enterprises",
+  "short_name": "ASE Store",
+  "description": "Shop spiritual essentials from Adeola Spiritual Enterprises.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "display_override": ["standalone", "minimal-ui"],
+  "background_color": "#FFFDF8",
+  "theme_color": "#35105C",
+  "icons": [
+    { "src": "/icons/ase-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/icons/ase-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+  ],
+  "categories": ["shopping", "lifestyle"]
+}
