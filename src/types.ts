@@ -5,6 +5,7 @@ export type Screen =
   | 'cart'
   | 'auth'
   | 'checkout'
+  | 'payment-callback'
   | 'order-confirmation'
   | 'order-details'
   | 'order-cancelled'

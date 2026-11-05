@@ -8,6 +8,7 @@ import ProductDetail from './screens/ProductDetail'
 import Cart from './screens/Cart'
 import Auth from './screens/Auth'
 import Checkout from './screens/Checkout'
+import PaymentCallback from './screens/PaymentCallback'
 import OrderConfirmation from './screens/OrderConfirmation'
 import OrderDetails from './screens/OrderDetails'
 import OrderCancelled from './screens/OrderCancelled'
@@ -48,8 +49,8 @@ import { APP_ROUTES } from './routes'
 import CookieConsentBanner from './components/CookieConsentBanner'
 import InstallAppButton from './components/InstallAppButton'
 
-const NO_HEADER = new Set(['auth', 'checkout', 'order-confirmation', 'forgot-password', 'bible', 'admin-login'])
-const NO_BOTTOM_NAV = new Set(['auth', 'checkout', 'order-confirmation', 'forgot-password', 'admin-login'])
+const NO_HEADER = new Set(['auth', 'checkout', 'payment-callback', 'order-confirmation', 'forgot-password', 'bible', 'admin-login'])
+const NO_BOTTOM_NAV = new Set(['auth', 'checkout', 'payment-callback', 'order-confirmation', 'forgot-password', 'admin-login'])
 
 const ADMIN_SCREENS = new Set([
   'admin-dashboard',
@@ -97,6 +98,7 @@ function CustomerRouter() {
       {screen === 'auth' && <Auth />}
       {screen === 'forgot-password' && <ForgotPassword />}
       {screen === 'checkout' && <Checkout />}
+      {screen === 'payment-callback' && <PaymentCallback />}
       {screen === 'order-confirmation' && <OrderConfirmation />}
       {screen === 'order-details' && <OrderDetails />}
       {screen === 'order-cancelled' && <OrderCancelled />}

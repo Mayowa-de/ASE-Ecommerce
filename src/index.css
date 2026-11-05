@@ -295,7 +295,7 @@ html { transition: background-color 0.2s ease, color 0.2s ease; }
 .desktop-only { display: none; }
 .mobile-only { display: block; }
 
-@media (min-width: 1024px) {
+@media (min-width: 998px) {
   .desktop-only { display: flex; }
   .mobile-only { display: none; }
   .desktop-footer { display: block; }

@@ -2,10 +2,10 @@ import { fieldClassName, inputClassName, inputErrorClassName } from "../componen
 import { useEffect, useRef, useState } from 'react'
 import { useApp } from '../context'
 import { getProductById, getVariantById, formatPrice, formatStateList } from '../data'
-import type { Order, PaymentStatus } from '../types'
+import type { Order } from '../types'
 import { apiRequest, jsonBody } from '../lib/api'
 
-const PAYMENT_METHODS = ['Cash on Delivery', 'Bank Transfer'] as const
+const PAYMENT_METHODS = ['Paystack', 'Cash on Delivery', 'Bank Transfer'] as const
 
 type PaymentMethod = (typeof PAYMENT_METHODS)[number]
 type CheckoutStage = 'review' | 'processing' | 'success'
@@ -39,6 +39,7 @@ export default function Checkout() {
 
   const deliveryStateLabel = formatStateList(storeConfig.deliveryStates)
   const isCashOnDelivery = payment === 'Cash on Delivery'
+  const isPaystack = payment === 'Paystack'
   const isProcessing = checkoutStage !== 'review'
 
   useEffect(() => {
@@ -98,7 +99,7 @@ export default function Checkout() {
     window.requestAnimationFrame(() => submitButtonRef.current?.focus())
   }
 
-  async function finalizeOrder(_paymentStatus: PaymentStatus) {
+  async function finalizeOrder() {
     if (orderItems.length === 0) {
       processingRef.current = false
       setReviewOpen(false)
@@ -125,12 +126,30 @@ export default function Checkout() {
     }
   }
 
+  async function startPaystackCheckout() {
+    try {
+      const { authorizationUrl } = await apiRequest<{ authorizationUrl: string }>('/payments/paystack/initialize', {
+        method: 'POST',
+        body: jsonBody({ items: cart, address: `${address.trim()}, ${state} State`, deliveryState: state }),
+      })
+      window.location.assign(authorizationUrl)
+    } catch (reason) {
+      processingRef.current = false
+      setCheckoutStage('review')
+      setErrors({ cart: reason instanceof Error ? reason.message : 'Unable to start Paystack checkout.' })
+    }
+  }
+
   function confirmOrder() {
     if (processingRef.current) return
     processingRef.current = true
     setCheckoutStage('processing')
 
-    void finalizeOrder(isCashOnDelivery ? 'Pending' : 'Pending')
+    if (isPaystack) {
+      void startPaystackCheckout()
+      return
+    }
+    void finalizeOrder()
   }
 
   return (
@@ -310,9 +329,9 @@ export default function Checkout() {
                   />
                   <div>
                     <span style={{ fontWeight: 600, fontSize: '0.875rem', color: 'var(--c-text)' }}>{method}</span>
-                    {method === 'Card' && (
+                    {method === 'Paystack' && (
                       <p style={{ fontSize: '0.75rem', color: 'var(--c-text2)', margin: '2px 0 0' }}>
-                        Processed securely via Paystack / Flutterwave
+                        Secure card, bank, USSD, or transfer checkout via Paystack
                       </p>
                     )}
                     {method === 'Bank Transfer' && (
@@ -458,7 +477,7 @@ export default function Checkout() {
                     Back to Edit
                   </button>
                   <button type="button" className="inline-flex min-h-11 items-center justify-center gap-1.5 rounded-lg border-0 bg-brand px-[22px] py-3 text-sm font-semibold text-white shadow-[0_2px_8px_rgba(53,16,92,0.25)] transition duration-150 hover:bg-[#4a1880] hover:shadow-[0_4px_14px_rgba(53,16,92,0.35)] active:scale-[0.97] disabled:cursor-not-allowed disabled:opacity-40" onClick={confirmOrder} style={{ flex: 1 }}>
-                    {isCashOnDelivery ? 'Place Order' : 'Proceed to Payment'}
+                    {isPaystack ? 'Continue to Paystack' : isCashOnDelivery ? 'Place Order' : 'Place Order'}
                   </button>
                 </div>
               </>
@@ -481,12 +500,12 @@ export default function Checkout() {
                       <path d="M21 12a9 9 0 11-6.22-8.56" />
                     </svg>
                     <h2 id="order-review-title" style={{ fontFamily: "'Playfair Display', serif", fontSize: '1.25rem', fontWeight: 700, color: 'var(--c-text)', margin: '0 0 8px' }}>
-                      {isCashOnDelivery ? 'Placing your order…' : 'Connecting securely…'}
+                      {isPaystack ? 'Connecting securely…' : 'Placing your order…'}
                     </h2>
                     <p style={{ fontSize: '0.8125rem', color: 'var(--c-text2)', lineHeight: 1.5, margin: 0 }}>
-                      {isCashOnDelivery
-                        ? 'Please wait while we confirm your order.'
-                        : 'Handing your payment over to Paystack / Flutterwave.'}
+                      {isPaystack
+                        ? 'Redirecting you to Paystack to complete payment.'
+                        : 'Please wait while we confirm your order.'}
                     </p>
                   </>
                 ) : (
